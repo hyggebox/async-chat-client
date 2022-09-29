@@ -1,5 +1,6 @@
 import argparse
 import asyncio
+import json
 import logging
 import os
 
@@ -13,6 +14,9 @@ async def chat_writer(host, port, message):
     await writer.drain()
     reply = await reader.readline()
     logging.debug(reply)
+    if not json.loads(reply):
+        print('Неизвестный токен. Проверьте его или зарегистрируйте заново.')
+
     writer.write((message + '\n\n').encode())
     await writer.drain()
     reply = await reader.readline()
