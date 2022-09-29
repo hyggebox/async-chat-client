@@ -4,6 +4,8 @@ import json
 import logging
 import os
 
+import aiofiles
+
 TOKEN = '3d9a78ce-3daa-11ed-8c47-0242ac110002'
 
 async def chat_writer(host, port, message):
@@ -21,6 +23,26 @@ async def chat_writer(host, port, message):
     await writer.drain()
     reply = await reader.readline()
     logging.debug(reply)
+
+    writer.close()
+
+
+async def register_user(host, port, nickname):
+    reader, writer = await asyncio.open_connection(host, port)
+    reply = await reader.readline()
+    logging.debug(reply)
+
+    writer.write('\n'.encode())
+    await writer.drain()
+    reply = await reader.readline()
+    logging.debug(reply)
+
+    writer.write((nickname + '\n').encode())
+    await writer.drain()
+    user_details = await reader.readline()
+    logging.debug(user_details)
+    async with aiofiles.open('user_details.json', mode='w') as f:
+        await f.write(json.dumps(json.loads(user_details), indent=4))
 
     writer.close()
 
