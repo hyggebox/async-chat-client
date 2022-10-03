@@ -31,8 +31,8 @@ if __name__ == '__main__':
     parser.add_argument('--history_file', '-f', default='chat.txt')
     args = parser.parse_args()
 
-    host = args.host or os.getenv('HOST')
-    port = args.port or os.getenv('PORT')
+    host = args.host or os.getenv('READER_HOST')
+    port = args.port or os.getenv('READER_PORT')
     history_file = args.history_file or os.getenv('HISTORY_FILE')
 
     asyncio.run(chat_reader(host, port, history_file))

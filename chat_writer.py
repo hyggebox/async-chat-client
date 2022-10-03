@@ -74,12 +74,12 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--host', default='minechat.dvmn.org')
     parser.add_argument('--port', type=int, default=5050)
-    parser.add_argument('--message', '-m', default='Hello!')
+    parser.add_argument('--message', '-m', required=True)
     parser.add_argument('--nickname', '-n')
     args = parser.parse_args()
 
-    host = args.host or os.getenv('HOST')
-    port = args.port or os.getenv('PORT')
+    host = args.host or os.getenv('WRITER_HOST')
+    port = args.port or os.getenv('WRITER_PORT')
     msg = clean_text(args.message)
     nickname = args.nickname or 0
 
