@@ -18,7 +18,7 @@ async def authorize_user(reader, writer, account_hash):
         print('Неизвестный токен. Проверьте его или зарегистрируйте заново.')
 
 
-async def register_user(reader, writer, nickname):
+async def register_user(reader, writer, nickname, data_file_name):
     reader, writer = await asyncio.open_connection(host, port)
     reply = await reader.readline()
     logging.debug(reply)
@@ -32,7 +32,7 @@ async def register_user(reader, writer, nickname):
     await writer.drain()
     user_details = await reader.readline()
     logging.debug(user_details)
-    async with aiofiles.open('user_details.json', mode='w') as f:
+    async with aiofiles.open(data_file_name, mode='w') as f:
         await f.write(json.dumps(json.loads(user_details), indent=4))
 
 
@@ -51,11 +51,12 @@ def clean_text(text):
 
 async def run_chat(host, port, message, nickname):
     reader, writer = await asyncio.open_connection(host, port)
+    data_file_name = 'user_details.json'
 
     if nickname:
-        await register_user(reader, writer, nickname)
-    if os.path.exists('user_details.json'):
-        async with aiofiles.open('user_details.json', 'r') as f:
+        await register_user(reader, writer, nickname, data_file_name)
+    if os.path.exists(data_file_name):
+        async with aiofiles.open(data_file_name, 'r') as f:
             data = await f.read()
             account_hash = json.loads(data)['account_hash']
             await authorize_user(reader, writer, account_hash)
