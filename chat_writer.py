@@ -35,8 +35,6 @@ async def register_user(reader, writer, nickname):
     async with aiofiles.open('user_details.json', mode='w') as f:
         await f.write(json.dumps(json.loads(user_details), indent=4))
 
-    writer.close()
-
 
 async def submit_message(reader, writer, message):
     writer.write((message + '\n\n').encode())
@@ -45,12 +43,18 @@ async def submit_message(reader, writer, message):
     logging.debug(reply)
 
 
+def clean_text(text):
+    if isinstance(text, str):
+        return text.replace('\\', '')
+    return text
+
+
 async def run_chat(host, port, message, nickname):
     reader, writer = await asyncio.open_connection(host, port)
 
     if nickname:
         await register_user(reader, writer, nickname)
-    elif os.path.exists('user_details.json'):
+    if os.path.exists('user_details.json'):
         async with aiofiles.open('user_details.json', 'r') as f:
             data = await f.read()
             account_hash = json.loads(data)['account_hash']
@@ -75,7 +79,7 @@ if __name__ == '__main__':
 
     host = args.host or os.getenv('HOST')
     port = args.port or os.getenv('PORT')
-    msg = args.message
+    msg = clean_text(args.message)
     nickname = args.nickname or 0
 
-    asyncio.run(run_chat(host, port, msg, nickname))
+    asyncio.run(run_chat(host, port, msg, clean_text(nickname)))
