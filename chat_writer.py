@@ -53,19 +53,22 @@ async def run_chat(host, port, message, nickname):
     reader, writer = await asyncio.open_connection(host, port)
     data_file_name = 'user_details.json'
 
-    if nickname:
-        await register_user(reader, writer, nickname, data_file_name)
-    if os.path.exists(data_file_name):
-        async with aiofiles.open(data_file_name, 'r') as f:
-            data = await f.read()
-            account_hash = json.loads(data)['account_hash']
-            await authorize_user(reader, writer, account_hash)
-    else:
-        print('Придумайте ник для регистрации в чате: --nickname / -n')
-        return
+    try:
+        if nickname:
+            await register_user(reader, writer, nickname, data_file_name)
+        if os.path.exists(data_file_name):
+            async with aiofiles.open(data_file_name, 'r') as f:
+                data = await f.read()
+                account_hash = json.loads(data)['account_hash']
+                await authorize_user(reader, writer, account_hash)
+        else:
+            print('Придумайте ник для регистрации в чате: --nickname / -n')
+            return
 
-    await submit_message(reader, writer, message)
-    writer.close()
+        await submit_message(reader, writer, message)
+
+    finally:
+        writer.close()
 
 
 if __name__ == '__main__':

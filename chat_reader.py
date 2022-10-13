@@ -9,19 +9,20 @@ import aiofiles
 async def chat_reader(host, port, history_file):
     reader, writer = await asyncio.open_connection(host, port)
 
-    while True:
-        line = await reader.readline()
-        now = datetime.datetime.now().strftime('%d.%m.%y %H:%M')
-        if not line:
-            break
+    try:
+        while True:
+            line = await reader.readline()
+            now = datetime.datetime.now().strftime('%d.%m.%y %H:%M')
+            if not line:
+                break
 
-        message = f'[{now}] {line.decode()}'
-        print(message.rstrip())
+            message = f'[{now}] {line.decode()}'
+            print(message.rstrip())
 
-        async with aiofiles.open(history_file, mode='a') as f:
-            await f.write(message)
-
-    writer.close()
+            async with aiofiles.open(history_file, mode='a') as f:
+                await f.write(message)
+    finally:
+        writer.close()
 
 
 if __name__ == '__main__':
