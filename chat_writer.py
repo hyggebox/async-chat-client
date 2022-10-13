@@ -51,15 +51,15 @@ def clean_text(text):
 
 async def run_chat(host, port, message, nickname):
     reader, writer = await asyncio.open_connection(host, port)
-    data_file_name = 'user_details.json'
+    user_details_filename = 'user_details.json'
 
     try:
         if nickname:
-            await register_user(reader, writer, nickname, data_file_name)
-        if os.path.exists(data_file_name):
-            async with aiofiles.open(data_file_name, 'r') as f:
-                data = await f.read()
-                account_hash = json.loads(data)['account_hash']
+            await register_user(reader, writer, nickname, user_details_filename)
+        if os.path.exists(user_details_filename):
+            async with aiofiles.open(user_details_filename, 'r') as f:
+                user_details = await f.read()
+                account_hash = json.loads(user_details)['account_hash']
                 await authorize_user(reader, writer, account_hash)
         else:
             print('Придумайте ник для регистрации в чате: --nickname / -n')
