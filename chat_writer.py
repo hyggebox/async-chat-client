@@ -33,7 +33,7 @@ async def register_user(reader, writer, nickname, data_file_name):
     user_details = await reader.readline()
     logging.debug(user_details)
     async with aiofiles.open(data_file_name, mode='w') as f:
-        await f.write(json.dumps(json.loads(user_details), indent=4))
+        await f.write(user_details.decode())
 
 
 async def submit_message(reader, writer, message):
