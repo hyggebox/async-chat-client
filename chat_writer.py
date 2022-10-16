@@ -66,7 +66,7 @@ async def run_chat(host, port, message, nickname):
         writer.close()
 
 
-if __name__ == '__main__':
+def main():
     logging.basicConfig(level=logging.DEBUG)
 
     parser = argparse.ArgumentParser()
@@ -82,3 +82,7 @@ if __name__ == '__main__':
     nickname = args.nickname or 0
 
     asyncio.run(run_chat(host, port, msg, clean_text(nickname)))
+
+
+if __name__ == '__main__':
+    main()
