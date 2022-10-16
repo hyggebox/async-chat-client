@@ -10,43 +10,38 @@ import aiofiles
 async def authorize_user(reader, writer, account_hash):
     reply = await reader.readline()
     logging.debug(reply)
-    writer.write((account_hash + '\n').encode())
-    await writer.drain()
-    reply = await reader.readline()
-    logging.debug(reply)
+    reply = await submit_message(reader, writer, account_hash)
     if not json.loads(reply):
         print('Неизвестный токен. Проверьте его или зарегистрируйте заново.')
 
 
 async def register_user(reader, writer, nickname, data_file_name):
-    reader, writer = await asyncio.open_connection(host, port)
     reply = await reader.readline()
     logging.debug(reply)
 
-    writer.write('\n'.encode())
-    await writer.drain()
-    reply = await reader.readline()
-    logging.debug(reply)
+    await submit_message(reader, writer, ' ')
 
-    writer.write((nickname + '\n').encode())
-    await writer.drain()
-    user_details = await reader.readline()
-    logging.debug(user_details)
+    user_details = await submit_message(reader, writer, nickname)
     async with aiofiles.open(data_file_name, mode='w') as f:
         await f.write(user_details.decode())
 
 
 async def submit_message(reader, writer, message):
-    writer.write((message + '\n\n').encode())
+    writer.write(add_line(message).encode())
     await writer.drain()
     reply = await reader.readline()
     logging.debug(reply)
+    return reply
 
 
 def clean_text(text):
     if isinstance(text, str):
         return text.replace('\\', '')
     return text
+
+
+def add_line(text):
+    return f'{text}\n'
 
 
 async def run_chat(host, port, message, nickname):
@@ -56,7 +51,7 @@ async def run_chat(host, port, message, nickname):
     try:
         if nickname:
             await register_user(reader, writer, nickname, user_details_filename)
-        if os.path.exists(user_details_filename):
+        elif os.path.exists(user_details_filename):
             async with aiofiles.open(user_details_filename, 'r') as f:
                 user_details = await f.read()
                 account_hash = json.loads(user_details)['account_hash']
@@ -65,7 +60,7 @@ async def run_chat(host, port, message, nickname):
             print('Придумайте ник для регистрации в чате: --nickname / -n')
             return
 
-        await submit_message(reader, writer, message)
+        await submit_message(reader, writer, add_line(message))
 
     finally:
         writer.close()
