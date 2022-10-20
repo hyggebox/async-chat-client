@@ -10,7 +10,7 @@ import aiofiles
 async def authorize_user(reader, writer, account_hash):
     reply = await reader.readline()
     logging.debug(reply)
-    reply = await submit_message(reader, writer, account_hash)
+    reply = await process_message(reader, writer, account_hash)
     if not json.loads(reply):
         print('Неизвестный токен. Проверьте его или зарегистрируйте заново.')
 
@@ -19,14 +19,14 @@ async def register_user(reader, writer, nickname, data_file_name):
     reply = await reader.readline()
     logging.debug(reply)
 
-    await submit_message(reader, writer, ' ')
+    await process_message(reader, writer, ' ')
 
-    user_details = await submit_message(reader, writer, nickname)
+    user_details = await process_message(reader, writer, nickname)
     async with aiofiles.open(data_file_name, mode='w') as f:
         await f.write(user_details.decode())
 
 
-async def submit_message(reader, writer, message):
+async def process_message(reader, writer, message):
     writer.write(add_line(message).encode())
     await writer.drain()
     reply = await reader.readline()
@@ -60,7 +60,7 @@ async def run_chat(host, port, message, nickname):
             print('Придумайте ник для регистрации в чате: --nickname / -n')
             return
 
-        await submit_message(reader, writer, add_line(message))
+        await process_message(reader, writer, add_line(message))
 
     finally:
         writer.close()
