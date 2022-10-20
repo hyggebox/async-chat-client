@@ -15,14 +15,14 @@ async def authorize_user(reader, writer, account_hash):
         print('Неизвестный токен. Проверьте его или зарегистрируйте заново.')
 
 
-async def register_user(reader, writer, nickname, data_file_name):
+async def register_user(reader, writer, nickname, user_details_filename):
     reply = await reader.readline()
     logging.debug(reply)
 
     await process_message(reader, writer, ' ')
 
     user_details = await process_message(reader, writer, nickname)
-    async with aiofiles.open(data_file_name, mode='w') as f:
+    async with aiofiles.open(user_details_filename, mode='w') as f:
         await f.write(user_details.decode())
 
 
